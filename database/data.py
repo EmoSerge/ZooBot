@@ -14,19 +14,19 @@ questions = [
             "answer1": {
                 'name': 'Лодка, обожаю плавать',
                 'value': -2,
-                'category': "environment"},
+                'category': 0},
             "answer2": {
                 'name': 'Автомобиль, можно и к морю махнуть',
                 'value': -1,
-                'category': "environment"},
+                'category': 0},
             "answer3": {
                 'name': 'Поезд, поедем по стране',
                 'value': 1,
-                'category': "environment"},
+                'category': 0},
             "answer4": {
                 'name': 'Дельтаплан, мне бы повыше к ветру',
                 'value': 2,
-                'category': "environment"},
+                'category': 0},
         }
     ],
     [

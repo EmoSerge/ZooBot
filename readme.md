@@ -26,7 +26,7 @@
 2. Клонируйте проект.
 
 ```bash
-git clone https://github.com/IJustADeveloper/MoscowZOOTeleBot.git
+git clone https://github.com/EmoSerge/ZooBot
 ```
 3. Создайте и активируйте виртуальную среду.
 
