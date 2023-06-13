@@ -186,7 +186,7 @@ async def quiz_answer(callback_query: types.CallbackQuery):
             msg = final_message(our_scores)
             keyboard = types.InlineKeyboardMarkup()
             button_link = types.InlineKeyboardButton(text="Узнать про свое тотемное животное больше", url=links[totem])
-            button_mail = types.InlineKeyboardButton(text="Отправить письмо с предложением об опеке.", callback_data="system.mail."+totem)
+            button_mail = types.InlineKeyboardButton(text="Отправить письмо с предложением об опеке", callback_data="system.mail."+totem)
             keyboard.add(button_link)
             keyboard.add(button_mail)
             path = f'images/animals/{totem}.jpg'
