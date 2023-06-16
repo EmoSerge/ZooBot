@@ -47,8 +47,8 @@ async def send_welcome(message: types.Message):
 async def begin_quiz(message: types.Message):
     user_id = message.from_user.id
 
-    if Sessions.check_session(engine, user_id):
-        sess = Sessions.get_session(engine, user_id)
+    if Sessions.check_session(engine, user_id, False):
+        sess = Sessions.get_session(engine, user_id, False)
         sess.at_welcome = True
         Sessions.save(engine, sess)
         await message.answer('Вы уже начинали проходить викторину.', reply_markup=quiz_menu_continue)
@@ -64,7 +64,7 @@ async def begin_quiz(message: types.Message):
 @dp.message_handler(Text("Начали"))
 async def quiz(message: types.Message):
     user_id = message.from_user.id
-    Sessions.add_session(engine, user_id)
+    Sessions.add_session(engine, user_id, False)
     Scores.add_scores(engine, user_id)
 
     await bot.send_message(reply_markup=quiz_stop, text='для отмены нажмите кнопку ниже', chat_id=message.chat.id)
@@ -75,8 +75,8 @@ async def quiz(message: types.Message):
 @dp.message_handler(Text("Продолжить"))
 async def continue_quiz(message: types.Message):
     user_id = message.from_user.id
-    if Sessions.check_session(engine, user_id):
-        sess = Sessions.get_session(engine, user_id)
+    if Sessions.check_session(engine, user_id, False):
+        sess = Sessions.get_session(engine, user_id, False)
         if sess.at_welcome:
             sess.at_welcome = 0
             await bot.send_message(reply_markup=quiz_stop, text='для отмены нажмите кнопку ниже',
@@ -93,11 +93,11 @@ async def continue_quiz(message: types.Message):
 @dp.message_handler(Text("Отмена"))
 async def cancel_quiz(message: types.Message):
     user_id = message.from_user.id
-    if Sessions.check_session(engine, user_id):
-        s = Sessions.get_session(engine, user_id)
+    if Sessions.check_session(engine, user_id, True):
+        s = Sessions.get_session(engine, user_id, True)
         if s.is_comment:
             await message.answer("Написание отзыва было отменено.", reply_markup=bot_menu)
-            Sessions.del_session(engine, user_id)
+            Sessions.del_session(engine, user_id, True)
         else:
             await message.answer("Вы всегда можете вернуться и пройти Викторину еще раз", reply_markup=bot_menu)
     else:
@@ -112,7 +112,7 @@ async def stop_quiz(message: types.Message):
 @dp.message_handler(Text("Сбросить"))
 async def drop_quiz(message: types.Message):
     user_id = message.from_user.id
-    Sessions.del_session(engine, user_id)
+    Sessions.del_session(engine, user_id, False)
     Scores.del_scores(engine, user_id)
     await message.answer("Вы всегда можете вернуться и продолжить Викторину", reply_markup=bot_menu)
 
@@ -147,13 +147,11 @@ async def review_quiz(message: types.Message):
 @dp.message_handler()
 async def review_quiz(message: types.Message):
     user_id = message.from_user.id
-    if Sessions.check_session(engine, user_id):
-        s = Sessions.get_session(engine, user_id)
-        if s.is_comment:
-            c = Reviews(review=message.text)
-            Reviews.save(engine, c)
-            await message.answer('Спасибо за оставленный отзыв.', reply_markup=bot_menu)
-            Sessions.del_session(engine, user_id)
+    if Sessions.check_session(engine, user_id, True):
+        c = Reviews(review=message.text)
+        Reviews.save(engine, c)
+        await message.answer('Спасибо за оставленный отзыв.', reply_markup=bot_menu)
+        Sessions.del_session(engine, user_id, True)
 
 
 @dp.callback_query_handler()
@@ -163,8 +161,8 @@ async def quiz_answer(callback_query: types.CallbackQuery):
     if "system" in callback_query.data:
         if "mail" in callback_query.data:
             send_mail(os.environ.get("TO_MAIL"), os.environ.get("FROM_MAIL"), os.environ.get("MAIL_PASSWORD"), callback_query.from_user.username, callback_query.data.split("system.mail.")[1])
-    elif Sessions.check_session(engine, user_id):
-        sess = Sessions.get_session(engine, user_id)
+    elif Sessions.check_session(engine, user_id, False):
+        sess = Sessions.get_session(engine, user_id, False)
         qst = questions[sess.cur_qst_num][1][callback_query.data]
         Scores.update_scores(engine, user_id, qst["category"], qst["value"])
 
@@ -202,7 +200,7 @@ async def quiz_answer(callback_query: types.CallbackQuery):
                                                                                 "А если хотите - то можно пройти тест еще раз!\n"
                                                                                 "А еще можно купить билет в зоопарк и весело провести время!"
                                    , reply_markup=bot_menu)
-            Sessions.del_session(engine, user_id)
+            Sessions.del_session(engine, user_id, False)
             Scores.del_scores(engine, user_id)
             Statistics.update_score(engine, totem)
 

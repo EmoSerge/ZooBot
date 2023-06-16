@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, String, BOOLEAN, DateTime, Column, ForeignKeyConstraint, text
+from sqlalchemy import Integer, String, BOOLEAN, DateTime, Column, ForeignKeyConstraint, text, PrimaryKeyConstraint
 from sqlalchemy.orm import declarative_base, Session
 from sqlalchemy.sql.functions import func
 import json
@@ -131,9 +131,9 @@ class Questions(Base):
 
 class Sessions(Base):
     __tablename__ = "sessions"
-    __table_args__ = {'extend_existing': True}
+    __table_args__ =(PrimaryKeyConstraint("user_id", "is_comment", name="pk"), {'extend_existing': True})
 
-    user_id = Column("user_id", Integer, nullable=False, primary_key=True)
+    user_id = Column("user_id", Integer, nullable=False)
     cur_qst_num = Column("cur_qst_num", Integer, nullable=False, unique=False, default=0)
     at_welcome = Column("at_welcome", BOOLEAN, nullable=False, unique=False, default=False)
     is_comment = Column("is_comment", BOOLEAN, nullable=False, unique=False, default=False)
@@ -146,50 +146,33 @@ class Sessions(Base):
         session.close()
 
     @staticmethod
-    def add_session(engine, user_id):
+    def add_session(engine, user_id, is_comment):
         session = Session(bind=engine)
-        obj = Sessions(user_id=user_id)
+        obj = Sessions(user_id=user_id, is_comment=is_comment)
         session.add(obj)
         session.commit()
         session.close()
 
     @staticmethod
-    def get_session(engine, user_id):
+    def get_session(engine, user_id, is_comment):
         session = Session(bind=engine)
-        obj = session.query(Sessions).filter(Sessions.user_id == user_id).first()
+        obj = session.query(Sessions).filter(Sessions.user_id == user_id, Sessions.is_comment == is_comment).first()
         session.close()
         return obj
 
     @staticmethod
-    def del_session(engine, user_id):
+    def del_session(engine, user_id, is_comment):
         session = Session(bind=engine)
-        session.query(Sessions).filter(Sessions.user_id == user_id).delete()
+        session.query(Sessions).filter(Sessions.user_id == user_id, Sessions.is_comment == is_comment).delete()
         session.commit()
         session.close()
 
     @staticmethod
-    def check_session(engine, user_id):
+    def check_session(engine, user_id, is_comment):
         session = Session(bind=engine)
-        flag = session.query(Sessions).filter(Sessions.user_id == user_id).first() is not None
+        flag = session.query(Sessions).filter(Sessions.user_id == user_id, Sessions.is_comment == is_comment).first() is not None
         session.close()
         return flag
-
-    @staticmethod
-    def get_cur_question(engine, user_id):
-        session = Session(bind=engine)
-        cur_q = session.query(Sessions).filter(Sessions.user_id == user_id).first().cur_qst_num
-        session.close()
-        return cur_q
-
-    @staticmethod
-    def next_question(engine, user_id):
-        session = Session(bind=engine)
-        obj = session.query(Sessions).filter(Sessions.user_id == user_id).first()
-        if obj is not None:
-            obj.cur_qst_num += 1
-            session.add(obj)
-            session.commit()
-        session.close()
 
 
 class Scores(Base):
