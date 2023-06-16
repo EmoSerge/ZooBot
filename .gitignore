@@ -1,2 +1,4 @@
 venv
 /.idea
+creds.env
+database/database.db
