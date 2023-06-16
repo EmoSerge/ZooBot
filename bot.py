@@ -100,6 +100,8 @@ async def cancel_quiz(message: types.Message):
             Sessions.del_session(engine, user_id)
         else:
             await message.answer("Вы всегда можете вернуться и пройти Викторину еще раз", reply_markup=bot_menu)
+    else:
+        await message.answer("Вы всегда можете вернуться и начать Викторину", reply_markup=bot_menu)
 
 
 @dp.message_handler(Text("Остановить игру"))
