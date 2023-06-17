@@ -94,14 +94,10 @@ async def continue_quiz(message: types.Message):
 async def cancel_quiz(message: types.Message):
     user_id = message.from_user.id
     if Sessions.check_session(engine, user_id, True):
-        s = Sessions.get_session(engine, user_id, True)
-        if s.is_comment:
-            await message.answer("Написание отзыва было отменено.", reply_markup=bot_menu)
-            Sessions.del_session(engine, user_id, True)
-        else:
-            await message.answer("Вы всегда можете вернуться и пройти Викторину еще раз", reply_markup=bot_menu)
+        await message.answer("Написание отзыва было отменено.", reply_markup=bot_menu)
+        Sessions.del_session(engine, user_id, True)
     else:
-        await message.answer("Вы всегда можете вернуться и начать Викторину", reply_markup=bot_menu)
+        await message.answer("Вы всегда можете вернуться и пройти Викторину", reply_markup=bot_menu)
 
 
 @dp.message_handler(Text("Остановить игру"))
