@@ -157,6 +157,7 @@ async def quiz_answer(callback_query: types.CallbackQuery):
     if "system" in callback_query.data:
         if "mail" in callback_query.data:
             send_mail(os.environ.get("TO_MAIL"), os.environ.get("FROM_MAIL"), os.environ.get("MAIL_PASSWORD"), callback_query.from_user.username, callback_query.data.split("system.mail.")[1])
+            await bot.send_message(chat_id=callback_query.message.chat.id, text="Ваш запрос был отправлен, скоро с вами свяжутся.")
     elif Sessions.check_session(engine, user_id, False):
         sess = Sessions.get_session(engine, user_id, False)
         qst = questions[sess.cur_qst_num][1][callback_query.data]
